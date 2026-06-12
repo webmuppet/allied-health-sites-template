@@ -1,9 +1,9 @@
 ---
 export const prerender = true;
-import { sanityClient } from '../../lib/sanity';
+import { sanityClient } from '@lib/sanity';
 import { marked } from 'marked';
-import Layout from '../../layouts/Layout.astro';
-import CTASection from '../../components/CTASection.astro';
+import Layout from '@theme/layouts/Layout.astro';
+import CTASection from '@theme/components/CTASection.astro';
 
 export async function getStaticPaths() {
   const posts = await sanityClient.fetch(`*[_type == "post"] { "slug": slug.current }`);

@@ -1,8 +1,8 @@
 ---
 export const prerender = true;
-import { sanityClient } from '../../lib/sanity';
-import Layout from '../../layouts/Layout.astro';
-import CTASection from '../../components/CTASection.astro';
+import { sanityClient } from '@lib/sanity';
+import Layout from '@theme/layouts/Layout.astro';
+import CTASection from '@theme/components/CTASection.astro';
 
 const posts = await sanityClient.fetch(
   `*[_type == "post"] | order(date desc) { title, "slug": slug.current, date, excerpt }`

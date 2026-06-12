@@ -1,0 +1,52 @@
+---
+export const prerender = true;
+import Layout from '@theme/layouts/Layout.astro';
+import CTASection from '@theme/components/CTASection.astro';
+---
+
+<Layout title="Services" description="A range of allied health services tailored to your needs.">
+  <div class="bg-brand-deeper text-white py-16 px-4 text-center">
+    <h1 class="text-4xl font-serif">Our Services</h1>
+    <p class="mt-3 text-stone-300 text-lg">Tailored care for every stage of life</p>
+  </div>
+
+  <section class="py-16 px-4">
+    <div class="max-w-5xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {[
+          {
+            heading: 'Initial Consultation',
+            body: 'A thorough assessment of your health history, posture, and movement to identify the root cause of your concern.',
+          },
+          {
+            heading: 'Spinal Care',
+            body: 'Hands-on adjustments and mobilisation to restore joint function, reduce pain, and improve mobility.',
+          },
+          {
+            heading: 'Rehabilitation',
+            body: 'Targeted exercise programmes to build strength, improve posture, and prevent recurrence.',
+          },
+          {
+            heading: 'Sports Injury',
+            body: 'Assessment and management of acute and chronic sports injuries to get you back to peak performance.',
+          },
+          {
+            heading: 'Paediatric Care',
+            body: 'Gentle, age-appropriate care for children and infants, supporting healthy development.',
+          },
+          {
+            heading: 'Wellness & Prevention',
+            body: 'Ongoing care and lifestyle advice to help you stay well and move freely at every age.',
+          },
+        ].map(s => (
+          <div class="bg-white border border-stone-200 rounded-lg p-8 hover:shadow-md transition-shadow">
+            <h2 class="font-serif text-xl text-brand-deeper mb-3">{s.heading}</h2>
+            <p class="text-stone-600 leading-relaxed">{s.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CTASection />
+</Layout>
