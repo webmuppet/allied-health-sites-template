@@ -1,7 +1,8 @@
 ---
 export const prerender = true;
 import { sanityClient } from '@lib/sanity';
-import { marked } from 'marked';
+import { toHTML } from '@portabletext/to-html';
+import { urlFor } from '@lib/imageUrl';
 import Layout from '@theme/layouts/Layout.astro';
 import CTASection from '@theme/components/CTASection.astro';
 
@@ -12,18 +13,46 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 const post = await sanityClient.fetch(
-  `*[_type == "post" && slug.current == $slug][0] { title, date, excerpt, body }`,
+  `*[_type == "post" && slug.current == $slug][0] { title, date, excerpt, coverImage, body[] { ..., asset-> } }`,
   { slug }
 );
 
 const formattedDate = new Date(post.date).toLocaleDateString('en-NZ', { year: 'numeric', month: 'long', day: 'numeric' });
-const htmlBody = marked.parse(post.body ?? '');
+const htmlBody = toHTML(post.body ?? [], {
+  components: {
+    types: {
+      image: ({ value }) => {
+        const url = value?.asset?.url;
+        if (!url) return '';
+        const alt = value.alt ?? '';
+        const caption = value.caption;
+        return caption
+          ? `<figure><img src="${url}" alt="${alt}" class="rounded-lg w-full" /><figcaption class="text-center text-sm text-stone-500 mt-2">${caption}</figcaption></figure>`
+          : `<img src="${url}" alt="${alt}" class="rounded-lg w-full" />`;
+      },
+    },
+  },
+});
 ---
 
 <Layout
   title={post.title}
   description={post.excerpt ?? `Read ${post.title} on our blog.`}
+  ogImage={post.coverImage?.asset ? urlFor(post.coverImage).width(1200).height(630).fit('crop').auto('format').url() : undefined}
 >
+  {post.coverImage?.asset && (
+    <div class="w-full aspect-[21/9] overflow-hidden">
+      <img
+        src={urlFor(post.coverImage).width(1400).height(600).fit('crop').auto('format').url()}
+        alt={post.coverImage.alt ?? post.title}
+        class="w-full h-full object-cover"
+        loading="eager"
+        width="1400"
+        height="600"
+      />
+    </div>
+  )}
+
   <div class="bg-brand-deeper text-white py-16 px-4 text-center">
     <p class="text-stone-400 text-xs uppercase tracking-widest mb-3">Blog</p>
     <h1 class="text-3xl md:text-4xl font-serif max-w-2xl mx-auto">{post.title}</h1>

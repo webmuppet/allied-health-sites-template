@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import { sanityClient } from '@lib/sanity';
+import { urlFor } from '@lib/imageUrl';
 import Layout from '@theme/layouts/Layout.astro';
 import CTASection from '@theme/components/CTASection.astro';
 
@@ -20,16 +21,20 @@ const sorted = await sanityClient.fetch(
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {sorted.map((member: any) => (
           <a href={`/${member.slug}/`} class="group block bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-stone-100">
-            {member.headshot && (
-              <div class="aspect-[4/3] overflow-hidden bg-warm-gray">
+            <div class="aspect-[4/3] overflow-hidden bg-warm-gray">
+              {member.headshot?.asset ? (
                 <img
-                  src={member.headshot}
+                  src={urlFor(member.headshot).width(480).height(360).fit('crop').auto('format').url()}
                   alt={`${member.displayName}, ${member.title}`}
                   class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
+                  width="480"
+                  height="360"
                 />
-              </div>
-            )}
+              ) : (
+                <div class="w-full h-full flex items-center justify-center text-stone-300 text-sm">Photo coming soon</div>
+              )}
+            </div>
             <div class="p-5">
               <h2 class="font-serif text-lg text-brand-deeper mb-1">{member.displayName}</h2>
               <p class="text-stone-500 text-sm">{member.title}</p>

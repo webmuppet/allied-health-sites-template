@@ -1,11 +1,12 @@
 ---
 export const prerender = true;
 import { sanityClient } from '@lib/sanity';
+import { urlFor } from '@lib/imageUrl';
 import Layout from '@theme/layouts/Layout.astro';
 import CTASection from '@theme/components/CTASection.astro';
 
 const posts = await sanityClient.fetch(
-  `*[_type == "post"] | order(date desc) { title, "slug": slug.current, date, excerpt }`
+  `*[_type == "post"] | order(date desc) { title, "slug": slug.current, date, excerpt, coverImage }`
 );
 ---
 
@@ -24,10 +25,24 @@ const posts = await sanityClient.fetch(
           {posts.map((post: any) => {
             const formatted = new Date(post.date).toLocaleDateString('en-NZ', { year: 'numeric', month: 'long', day: 'numeric' });
             return (
-              <a href={`/blog/${post.slug}/`} class="group block bg-white border border-stone-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                <p class="text-xs text-stone-400 mb-2">{formatted}</p>
-                <h2 class="font-serif text-lg text-brand-deeper mb-2 group-hover:underline">{post.title}</h2>
-                {post.excerpt && <p class="text-stone-600 text-sm leading-relaxed">{post.excerpt}</p>}
+              <a href={`/blog/${post.slug}/`} class="group block bg-white border border-stone-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                {post.coverImage?.asset && (
+                  <div class="aspect-[16/9] overflow-hidden">
+                    <img
+                      src={urlFor(post.coverImage).width(640).height(360).fit('crop').auto('format').url()}
+                      alt={post.coverImage.alt ?? post.title}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                      width="640"
+                      height="360"
+                    />
+                  </div>
+                )}
+                <div class="p-6">
+                  <p class="text-xs text-stone-400 mb-2">{formatted}</p>
+                  <h2 class="font-serif text-lg text-brand-deeper mb-2 group-hover:underline">{post.title}</h2>
+                  {post.excerpt && <p class="text-stone-600 text-sm leading-relaxed">{post.excerpt}</p>}
+                </div>
               </a>
             );
           })}
