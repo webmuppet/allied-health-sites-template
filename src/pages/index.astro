@@ -1,0 +1,75 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import CTASection from '../components/CTASection.astro';
+import { sanityClient } from '../lib/sanity';
+
+let settings: any = {};
+let team: any[] = [];
+try {
+  [settings, team] = await Promise.all([
+    sanityClient.fetch(`*[_type == "siteSettings"][0]{ practiceName, tagline, bookingUrl }`),
+    sanityClient.fetch(`*[_type == "teamMember"] | order(order asc)[0...3]{ displayName, "slug": slug.current, title, headshot }`),
+  ]);
+} catch {}
+
+const practiceName = settings?.practiceName ?? 'Allied Health Practice';
+const tagline = settings?.tagline ?? 'Expert care for your whole family.';
+---
+
+<Layout title="Home" description={tagline}>
+  <!-- Hero -->
+  <section class="bg-brand-deeper text-white py-24 px-4 text-center">
+    <h1 class="font-serif text-4xl md:text-5xl mb-4">{practiceName}</h1>
+    <p class="text-stone-300 text-xl max-w-2xl mx-auto mb-8">{tagline}</p>
+    <a href={settings?.bookingUrl ?? '/book-online/'} class="bg-brand text-white px-8 py-3 rounded-md font-medium hover:bg-brand-dark transition-colors text-lg">
+      Book an Appointment
+    </a>
+  </section>
+
+  <!-- Why us -->
+  <section class="py-20 px-4">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+      {[
+        { icon: '🌿', heading: 'Natural Approach', body: 'Evidence-based, hands-on care without unnecessary medication or surgery.' },
+        { icon: '👨‍👩‍👧', heading: 'For All Ages', body: 'From young children to seniors — we tailor care to every stage of life.' },
+        { icon: '📋', heading: 'Personalised Plans', body: 'No two patients are the same. Your care plan is built around your goals.' },
+      ].map(f => (
+        <div>
+          <div class="text-4xl mb-4">{f.icon}</div>
+          <h3 class="font-serif text-xl text-brand-deeper mb-2">{f.heading}</h3>
+          <p class="text-stone-500 leading-relaxed">{f.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Team preview -->
+  {team.length > 0 && (
+    <section class="py-16 px-4 bg-warm-gray">
+      <div class="max-w-5xl mx-auto">
+        <h2 class="font-serif text-3xl text-brand-deeper text-center mb-10">Meet the Team</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {team.map((m: any) => (
+            <a href={`/${m.slug}/`} class="group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-stone-100">
+              {m.headshot && (
+                <div class="aspect-[4/3] overflow-hidden bg-warm-gray">
+                  <img src={m.headshot} alt={m.displayName} class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                </div>
+              )}
+              <div class="p-5">
+                <p class="font-serif text-brand-deeper">{m.displayName}</p>
+                <p class="text-stone-500 text-sm mt-1">{m.title}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+        <div class="text-center mt-8">
+          <a href="/meet-the-team/" class="text-brand-dark font-medium hover:underline">View all team members →</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <CTASection />
+</Layout>

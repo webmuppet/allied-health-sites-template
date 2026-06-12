@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/*
+  Brand colours — override per client.
+  brand:       primary accent (buttons, links, highlights)
+  brand-dark:  darker accent for hover states
+  brand-deeper: darkest, used for headings and hero backgrounds
+  warm-white:  page background
+  warm-gray:   section background alternates
+*/
+@theme {
+  --color-brand: #7ba7a0;
+  --color-brand-dark: #4d7c75;
+  --color-brand-deeper: #2e5450;
+  --color-warm-white: #fafafa;
+  --color-warm-gray: #f2f2f0;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Lora', ui-serif, Georgia, serif;
+}
+
+html {
+  background-color: var(--color-warm-white);
+  color: #374151;
+}

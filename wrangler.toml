@@ -1,0 +1,2 @@
+# Replace CLIENT_SITE_NAME with your CF Pages project name
+pages_build_output_dir = "./dist/client"

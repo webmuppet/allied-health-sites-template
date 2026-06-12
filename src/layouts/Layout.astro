@@ -1,0 +1,85 @@
+---
+import '../styles/global.css';
+import { sanityClient } from '../lib/sanity';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const { title, description = '', ogImage } = Astro.props;
+
+let settings: any = {};
+try {
+  settings = await sanityClient.fetch(
+    `*[_type == "siteSettings"][0]{ practiceName, phone, phoneHref, bookingUrl }`
+  );
+} catch {}
+
+const practiceName = settings?.practiceName ?? 'Allied Health Practice';
+const phone = settings?.phone ?? '';
+const phoneHref = settings?.phoneHref ?? '';
+const bookingUrl = settings?.bookingUrl ?? '/book-online/';
+---
+
+<!doctype html>
+<html lang="en-NZ">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | {practiceName}</title>
+    {description && <meta name="description" content={description} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/jpeg" href="/images/favicon.jpg" />
+  </head>
+  <body class="font-sans antialiased">
+    <!-- Nav -->
+    <nav class="bg-white border-b border-stone-100 sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
+        <a href="/" class="font-serif text-lg text-brand-deeper font-semibold">{practiceName}</a>
+        <div class="hidden md:flex items-center gap-6 text-sm text-stone-600">
+          <a href="/meet-the-team/" class="hover:text-brand-deeper transition-colors">Our Team</a>
+          <a href="/services/" class="hover:text-brand-deeper transition-colors">Services</a>
+          <a href="/blog/" class="hover:text-brand-deeper transition-colors">Blog</a>
+          <a href="/contact-us/" class="hover:text-brand-deeper transition-colors">Contact</a>
+          {bookingUrl && (
+            <a href={bookingUrl} class="bg-brand text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition-colors">
+              Book Online
+            </a>
+          )}
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-deeper text-white py-12 px-4 mt-16">
+      <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+        <div>
+          <p class="font-serif text-lg mb-2">{practiceName}</p>
+          <p class="text-stone-300">Quality care for your whole family.</p>
+        </div>
+        <div>
+          <p class="font-semibold mb-2 text-stone-300 uppercase tracking-wider text-xs">Contact</p>
+          {phone && <p><a href={phoneHref} class="hover:text-brand transition-colors">{phone}</a></p>}
+        </div>
+        <div>
+          <p class="font-semibold mb-2 text-stone-300 uppercase tracking-wider text-xs">Visit</p>
+          <a href="/meet-the-team/" class="block hover:text-brand transition-colors">Meet the Team</a>
+          <a href="/blog/" class="block hover:text-brand transition-colors">Blog</a>
+          {bookingUrl && <a href={bookingUrl} class="block hover:text-brand transition-colors">Book Online</a>}
+        </div>
+      </div>
+      <div class="max-w-6xl mx-auto mt-8 pt-8 border-t border-white/10 text-stone-400 text-xs">
+        &copy; {new Date().getFullYear()} {practiceName}. All rights reserved.
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+---
+export const prerender = true;
+import { sanityClient } from '../lib/sanity';
+import Layout from '../layouts/Layout.astro';
+import CTASection from '../components/CTASection.astro';
+
+export async function getStaticPaths() {
+  const team = await sanityClient.fetch(`*[_type == "teamMember"] { "slug": slug.current }`);
+  return team.map((m: any) => ({ params: { slug: m.slug } }));
+}
+
+const { slug } = Astro.params;
+const [member, others] = await Promise.all([
+  sanityClient.fetch(
+    `*[_type == "teamMember" && slug.current == $slug][0] { displayName, "slug": slug.current, title, headshot, bio, outsideOffice }`,
+    { slug }
+  ),
+  sanityClient.fetch(
+    `*[_type == "teamMember" && slug.current != $slug] | order(order asc) { displayName, "slug": slug.current, title, headshot }`,
+    { slug }
+  ),
+]);
+
+const firstName = member.displayName.split(' ')[1] ?? member.displayName.split(' ')[0];
+---
+
+<Layout
+  title={`Meet ${member.displayName}`}
+  description={`${member.displayName}, ${member.title}.`}
+  ogImage={member.headshot}
+>
+  <div class="bg-brand-deeper text-white py-16 px-4 text-center">
+    <p class="text-stone-400 text-sm mb-2 uppercase tracking-wider">Our Team</p>
+    <h1 class="text-4xl font-serif">Meet {member.displayName}</h1>
+    <p class="mt-2 text-stone-300">{member.title}</p>
+  </div>
+
+  <section class="py-16 px-4">
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div class="md:col-span-1">
+        {member.headshot && (
+          <img
+            src={member.headshot}
+            alt={`${member.displayName}, ${member.title}`}
+            class="w-full rounded-lg shadow-md object-cover object-top"
+            loading="eager"
+          />
+        )}
+        <div class="mt-4 text-center">
+          <p class="font-serif text-brand-deeper">{member.displayName}</p>
+          <p class="text-stone-500 text-sm">{member.title}</p>
+        </div>
+      </div>
+
+      <div class="md:col-span-2 space-y-4">
+        {member.bio?.split('\n\n').map((para: string) => (
+          <p class="text-stone-600 leading-relaxed">{para}</p>
+        ))}
+
+        {member.outsideOffice && (
+          <div class="mt-8 pt-6 border-t border-stone-200">
+            <h2 class="font-serif text-lg text-brand-deeper mb-3">Outside the Practice</h2>
+            <p class="text-stone-600 leading-relaxed">{member.outsideOffice}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  {others.length > 0 && (
+    <section class="py-12 px-4 bg-warm-gray">
+      <div class="max-w-5xl mx-auto">
+        <h2 class="text-xl font-serif text-brand-deeper mb-6 text-center">Also on Our Team</h2>
+        <div class="flex flex-wrap justify-center gap-4">
+          {others.map((m: any) => (
+            <a href={`/${m.slug}/`} class="group flex items-center gap-3 bg-white rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-shadow">
+              {m.headshot && (
+                <img src={m.headshot} alt={m.displayName} class="w-10 h-10 rounded-full object-cover object-top" loading="lazy" />
+              )}
+              <div>
+                <p class="text-sm font-medium text-stone-800 group-hover:text-brand-deeper transition-colors">{m.displayName}</p>
+                <p class="text-xs text-stone-400">{m.title}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <CTASection heading={`Book with ${firstName}`} />
+</Layout>

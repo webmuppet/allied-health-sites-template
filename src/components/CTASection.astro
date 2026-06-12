@@ -1,0 +1,42 @@
+---
+import { sanityClient } from '../lib/sanity';
+
+interface Props {
+  heading?: string;
+  subtext?: string;
+}
+
+const { heading, subtext } = Astro.props;
+
+let settings: any = {};
+try {
+  settings = await sanityClient.fetch(
+    `*[_type == "siteSettings"][0]{ phone, phoneHref, bookingUrl }`
+  );
+} catch {}
+
+const phone = settings?.phone ?? '';
+const phoneHref = settings?.phoneHref ?? '';
+const bookingUrl = settings?.bookingUrl ?? '/book-online/';
+---
+
+<section class="bg-brand-deeper text-white py-16 px-4">
+  <div class="max-w-3xl mx-auto text-center">
+    <h2 class="font-serif text-3xl mb-4">{heading ?? 'Ready to Feel Better?'}</h2>
+    <p class="text-stone-300 text-lg mb-8">
+      {subtext ?? 'Book your appointment online or give us a call — we\'d love to help.'}
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      {bookingUrl && (
+        <a href={bookingUrl} class="bg-brand text-white px-8 py-3 rounded-md font-medium hover:bg-brand-dark transition-colors">
+          Book Online
+        </a>
+      )}
+      {phone && (
+        <a href={phoneHref} class="border border-white/40 text-white px-8 py-3 rounded-md font-medium hover:bg-white/10 transition-colors">
+          {phone}
+        </a>
+      )}
+    </div>
+  </div>
+</section>
