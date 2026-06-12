@@ -126,6 +126,7 @@ const secrets = {
   CF_PAGES_PROJECT_NAME:   cfPagesName,
   PUBLIC_SANITY_PROJECT_ID: sanityProject,
   PUBLIC_SANITY_DATASET:   sanityDataset,
+  SANITY_TOKEN:            SANITY_TOKEN,
 };
 
 for (const [name, value] of Object.entries(secrets)) {

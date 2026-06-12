@@ -163,5 +163,6 @@ For content-driven pages, query Sanity using `sanityClient.fetch()` from `src/li
 | `CF_PAGES_PROJECT_NAME` | GitHub Actions | CF Pages project name |
 | `PUBLIC_SANITY_PROJECT_ID` | GitHub Actions, local `.env` | Sanity project ID |
 | `PUBLIC_SANITY_DATASET` | GitHub Actions, local `.env` | Usually `production` |
+| `SANITY_TOKEN` | GitHub Actions (studio deploy) | Sanity API token with deploy rights |
 | `GH_TOKEN` | CF Worker (relay) | GitHub token with `workflow` scope |
 | `GH_REPO` | CF Worker (relay) | e.g. `webmuppet/client-repo` |
