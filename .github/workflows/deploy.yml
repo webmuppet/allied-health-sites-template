@@ -32,7 +32,13 @@ jobs:
           PUBLIC_SANITY_DATASET: ${{ secrets.PUBLIC_SANITY_DATASET }}
 
       - name: Deploy to Cloudflare Pages
-        run: bunx wrangler pages deploy dist/client --project-name ${{ secrets.CF_PAGES_PROJECT_NAME }} --commit-dirty=true
+        run: |
+          if [ -n "$CF_PAGES_PROJECT_NAME" ]; then
+            bunx wrangler pages deploy dist/client --project-name "$CF_PAGES_PROJECT_NAME" --commit-dirty=true
+          else
+            echo "CF_PAGES_PROJECT_NAME not configured — skipping deploy (run setup script first)"
+          fi
         env:
+          CF_PAGES_PROJECT_NAME: ${{ secrets.CF_PAGES_PROJECT_NAME }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
